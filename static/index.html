@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡密管理系统</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0b10;--bg2:#101219;--card:#151822;--card2:#1a1e2e;
+  --border:#1f2437;--border2:#2a3050;
+  --primary:#7c6aef;--primary-dim:rgba(124,106,239,.12);--primary-hover:#8d7ef7;
+  --danger:#ef4444;--danger-dim:rgba(239,68,68,.12);
+  --success:#10b981;--success-dim:rgba(16,185,129,.12);
+  --warning:#f59e0b;--warning-dim:rgba(245,158,11,.12);
+  --info:#3b82f6;--info-dim:rgba(59,130,246,.12);
+  --text:#e8ecf4;--text2:#a0aec0;--text3:#64748b;
+  --radius:12px;--shadow:0 8px 32px rgba(0,0,0,.4);
+}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ===== Login ===== */
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(124,106,239,.08),transparent 60%)}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 44px;width:100%;max-width:420px;box-shadow:var(--shadow);text-align:center}
+.login-card .logo{width:56px;height:56px;background:var(--primary-dim);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:24px}
+.login-card h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.login-card p{color:var(--text3);font-size:14px;margin-bottom:32px}
+.input{width:100%;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:14px;outline:none;transition:border .2s}
+.input:focus{border-color:var(--primary)}
+.input::placeholder{color:var(--text3)}
+
+/* ===== Buttons ===== */
+.btn{padding:10px 20px;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-hover);transform:translateY(-1px)}
+.btn-danger{background:var(--danger-dim);color:var(--danger);border:1px solid transparent}.btn-danger:hover{background:var(--danger);color:#fff}
+.btn-success{background:var(--success-dim);color:var(--success)}.btn-success:hover{background:var(--success);color:#fff}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--text2);color:var(--text)}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
+.btn-block{width:100%;justify-content:center;padding:13px;margin-top:24px;font-size:14px}
+
+/* ===== Layout: Top Navbar ===== */
+.app{display:none}
+.navbar{position:fixed;top:0;left:0;right:0;height:60px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;z-index:20}
+.navbar .left{display:flex;align-items:center;gap:32px}
+.navbar .brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700}
+.navbar .brand span{background:var(--primary-dim);color:var(--primary);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.navbar .nav-links{display:flex;align-items:center;gap:4px}
+.nav-item{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;font-size:14px;color:var(--text2);cursor:pointer;transition:all .15s;position:relative}
+.nav-item:hover{background:var(--bg2);color:var(--text)}
+.nav-item.active{background:var(--primary-dim);color:var(--primary);font-weight:600}
+.nav-item .icon{width:16px;height:16px}
+.nav-item .count{background:var(--bg2);padding:1px 7px;border-radius:6px;font-size:11px;font-weight:600;color:var(--text3);margin-left:2px}
+.navbar .right{display:flex;align-items:center;gap:10px}
+
+.main{margin-top:60px;min-height:calc(100vh - 60px)}
+.page-header{padding:20px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg)}
+.page-header h2{font-size:18px;font-weight:700}
+.page-header .actions{display:flex;gap:10px;align-items:center}
+.content{padding:24px 32px;max-width:1400px;margin:0 auto}
+
+/* ===== Stats ===== */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
+.stat .label{font-size:12px;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.stat .label .dot{width:8px;height:8px;border-radius:50%}
+.stat .val{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.stat .val.c1{color:var(--primary)}.stat .val.c2{color:var(--success)}.stat .val.c3{color:var(--warning)}.stat .val.c4{color:var(--info)}
+
+/* ===== Table ===== */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.panel-header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.panel-header h3{font-size:15px;font-weight:600}
+.filter-select{padding:7px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:11px 24px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;background:var(--bg2);border-bottom:1px solid var(--border)}
+td{padding:13px 24px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(124,106,239,.03)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+
+/* ===== Badges ===== */
+.badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.3px}
+.badge-active{background:var(--success-dim);color:var(--success)}
+.badge-revoked{background:var(--danger-dim);color:var(--danger)}
+.badge-expired{background:var(--warning-dim);color:var(--warning)}
+.badge-online{background:var(--success-dim);color:var(--success)}
+.badge-offline{background:rgba(100,116,139,.15);color:var(--text3)}
+.badge-project{background:var(--info-dim);color:var(--info)}
+
+/* ===== Modal ===== */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(4px)}
+.modal-mask.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px;width:100%;max-width:500px;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal h2{font-size:17px;font-weight:700;margin-bottom:24px;display:flex;align-items:center;gap:8px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:28px}
+
+/* ===== Misc ===== */
+.copy-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:16px;max-height:180px;overflow-y:auto;font-family:monospace;font-size:12px;line-height:2;word-break:break-all;user-select:all;color:var(--primary)}
+.empty{text-align:center;padding:48px 20px;color:var(--text3);font-size:14px}
+.toast{position:fixed;top:24px;right:24px;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:300;animation:toastIn .25s ease;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.toast-success{background:var(--success);color:#fff}
+.toast-error{background:var(--danger);color:#fff}
+@keyframes toastIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.device-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.device-item:last-child{border-bottom:none}
+.device-meta{flex:1}
+.device-meta .name{font-size:14px;font-weight:500}
+.device-meta .sub{font-size:12px;color:var(--text3);margin-top:3px;font-family:monospace}
+
+/* ===== Project Cards ===== */
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.project-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;transition:all .15s;cursor:default}
+.project-card:hover{border-color:var(--border2)}
+.project-card .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.project-card .head h4{font-size:15px;font-weight:700}
+.project-card .desc{font-size:13px;color:var(--text3);margin-bottom:16px;min-height:20px}
+.project-card .meta{display:flex;gap:16px;font-size:12px;color:var(--text2)}
+.project-card .meta b{color:var(--text);font-weight:700}
+.project-card .actions{display:flex;gap:6px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+
+@media(max-width:768px){
+  .navbar{padding:0 16px}
+  .navbar .left{gap:16px}
+  .nav-item{padding:8px 10px;font-size:13px}
+  .content{padding:16px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .hide-m{display:none}
+  .page-header{padding:16px}
+}
+</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+<!-- ===== Login Page ===== -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="logo"><i data-lucide="shield-check" style="width:28px;height:28px;color:var(--primary)"></i></div>
+    <h1>卡密管理系统</h1>
+    <p>请输入管理员密钥登录</p>
+    <input class="input" type="password" id="adminKeyInput" placeholder="管理员密钥" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn btn-primary btn-block" onclick="doLogin()">登 录</button>
+  </div>
+</div>
+
+<!-- ===== App ===== -->
+<div class="app" id="appPage">
+  <!-- Top Navbar -->
+  <div class="navbar">
+    <div class="left">
+      <div class="brand"><span><i data-lucide="key-round" style="width:16px;height:16px"></i></span> 卡密管理</div>
+      <div class="nav-links">
+        <div class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
+          <i data-lucide="layout-dashboard" class="icon"></i> 仪表盘
+        </div>
+        <div class="nav-item" data-page="licenses" onclick="switchPage('licenses')">
+          <i data-lucide="key-round" class="icon"></i> 卡密 <span class="count" id="navLicCount">0</span>
+        </div>
+        <div class="nav-item" data-page="projects" onclick="switchPage('projects')">
+          <i data-lucide="folder-open" class="icon"></i> 项目 <span class="count" id="navProjCount">0</span>
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <button class="btn btn-ghost btn-sm" onclick="refreshAll()"><i data-lucide="refresh-cw" style="width:14px;height:14px"></i> 刷新</button>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()"><i data-lucide="log-out" style="width:14px;height:14px"></i> 退出</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Dashboard Page -->
+    <div class="page" id="page-dashboard">
+      <div class="page-header"><h2>仪表盘</h2></div>
+      <div class="content">
+        <div class="stats" id="statsGrid"></div>
+        <div class="panel">
+          <div class="panel-header"><h3>最近卡密</h3></div>
+          <div style="overflow-x:auto"><table><thead><tr>
+            <th>卡密</th><th>项目</th><th>状态</th><th>设备</th><th>到期时间</th><th>操作</th>
+          </tr></thead><tbody id="dashTable"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Licenses Page -->
+    <div class="page" id="page-licenses" style="display:none">
+      <div class="page-header"><h2>卡密管理</h2><div class="actions">
+        <select class="filter-select" id="licProjectFilter" onchange="loadLicenses()"><option value="">全部项目</option></select>
+        <button class="btn btn-primary btn-sm" onclick="openModal('createLicModal')"><i data-lucide="plus" style="width:14px;height:14px"></i> 生成卡密</button>
+      </div></div>
+      <div class="content">
+        <div class="panel">
+          <div style="overflow-x:auto"><table><thead><tr>
+            <th>卡密</th><th>项目</th><th>备注</th><th>状态</th><th>设备</th><th>到期时间</th><th class="hide-m">创建时间</th><th>操作</th>
+          </tr></thead><tbody id="licTable"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects Page -->
+    <div class="page" id="page-projects" style="display:none">
+      <div class="page-header"><h2>项目管理</h2><div class="actions">
+        <button class="btn btn-primary btn-sm" onclick="openModal('createProjModal')"><i data-lucide="plus" style="width:14px;height:14px"></i> 新建项目</button>
+      </div></div>
+      <div class="content">
+        <div class="project-grid" id="projectGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Create License Modal ===== -->
+<div class="modal-mask" id="createLicModal">
+  <div class="modal">
+    <h2><i data-lucide="key-round" style="width:20px;height:20px;color:var(--primary)"></i> 生成卡密</h2>
+    <div class="form-group"><label>所属项目</label><select class="input" id="cLicProject"></select></div>
+    <div class="form-row">
+      <div class="form-group"><label>生成数量</label><input class="input" type="number" id="cLicCount" value="1" min="1" max="100"></div>
+      <div class="form-group"><label>最大设备数</label><input class="input" type="number" id="cLicDevices" value="1" min="1"></div>
+    </div>
+    <div class="form-group"><label>有效期（天），留空为永久</label><input class="input" type="number" id="cLicDays" placeholder="例如: 30"></div>
+    <div class="form-group"><label>备注</label><input class="input" type="text" id="cLicNote" placeholder="可选"></div>
+    <div id="cLicResult"></div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('createLicModal')">取消</button><button class="btn btn-primary" onclick="doCreateLicense()">生成</button></div>
+  </div>
+</div>
+
+<!-- ===== Create Project Modal ===== -->
+<div class="modal-mask" id="createProjModal">
+  <div class="modal">
+    <h2><i data-lucide="folder-plus" style="width:20px;height:20px;color:var(--primary)"></i> 新建项目</h2>
+    <div class="form-group"><label>项目标识（唯一英文标识）</label><input class="input" type="text" id="cProjCode" placeholder="例如: vidu2api"></div>
+    <div class="form-group"><label>项目名称</label><input class="input" type="text" id="cProjName" placeholder="例如: Vidu2API"></div>
+    <div class="form-group"><label>项目描述</label><input class="input" type="text" id="cProjDesc" placeholder="可选"></div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('createProjModal')">取消</button><button class="btn btn-primary" onclick="doCreateProject()">创建</button></div>
+  </div>
+</div>
+
+<!-- ===== Device Modal ===== -->
+<div class="modal-mask" id="deviceModal">
+  <div class="modal" style="max-width:560px">
+    <h2><i data-lucide="monitor-smartphone" style="width:20px;height:20px;color:var(--primary)"></i> 绑定设备 <span id="devModalKey" class="mono" style="color:var(--primary);font-size:13px"></span></h2>
+    <div id="deviceList" style="max-height:360px;overflow-y:auto"></div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('deviceModal')">关闭</button></div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
