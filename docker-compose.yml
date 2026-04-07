@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  license-server:
+    image: ghcr.io/wlk199718/license-server:latest
+    container_name: license-server
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ADMIN_KEY=${ADMIN_KEY:-changeme}
+      - DATABASE_URL=sqlite+aiosqlite:///./data/license.db
+      - HEARTBEAT_TIMEOUT=${HEARTBEAT_TIMEOUT:-120}
+      - HOST=0.0.0.0
+      - PORT=9000
