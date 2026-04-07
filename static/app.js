@@ -147,16 +147,17 @@ function licGoPage(p) {
 
 function licRow(l, short) {
   const k = l.key;
-  const keyCell = `<td style="min-width:220px"><div style="display:flex;align-items:center;gap:8px"><code class="mono">${mask(k)}</code><button class="copy-btn" data-key="${k}" onclick="copyText(this.dataset.key)" title="复制完整卡密"><i data-lucide="copy" style="width:14px;height:14px"></i></button></div></td>`;
+  const keyCell = `<td style="min-width:280px"><div style="display:flex;align-items:center;gap:8px"><code class="mono">${mask(k)}</code><button class="copy-btn" data-key="${k}" onclick="copyText(this.dataset.key)" title="复制完整卡密"><i data-lucide="copy" style="width:14px;height:14px"></i></button></div></td>`;
+  const projCell = `<td style="max-width:80px"><span class="badge badge-project">${l.project_code}</span></td>`;
   const cols = short ? `
     ${keyCell}
-    <td><span class="badge badge-project">${l.project_code}</span></td>
+    ${projCell}
     <td>${statusBadge(l)}</td>
     <td><span style="cursor:pointer;color:var(--primary)" data-key="${k}" onclick="showDevices(this.dataset.key)">${l.current_devices}/${l.max_devices}</span></td>
     <td style="font-size:12px">${fmtDate(l.expires_at)}</td>
     <td>${actionBtns(l)}</td>` : `
     ${keyCell}
-    <td><span class="badge badge-project">${l.project_code}</span></td>
+    ${projCell}
     <td style="color:var(--text3);font-size:12px">${l.note || '-'}</td>
     <td>${statusBadge(l)}</td>
     <td><span style="cursor:pointer;color:var(--primary)" data-key="${k}" onclick="showDevices(this.dataset.key)">${l.current_devices}/${l.max_devices}</span></td>
