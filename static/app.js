@@ -68,6 +68,15 @@ async function refreshAll() {
     renderDashTable();
     updateNavCounts();
     updateProjectSelects();
+    loadVersion();
+  } catch (e) {}
+}
+
+async function loadVersion() {
+  try {
+    const r = await fetch(API + '/api/version');
+    const d = await r.json();
+    if (d.version) $('appVersion').textContent = 'v' + d.version;
   } catch (e) {}
 }
 

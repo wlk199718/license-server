@@ -17,6 +17,7 @@ from db import init_db
 from api import router as api_router
 
 STATIC_DIR = Path(__file__).parent / "static"
+VERSION = "1.1.0"
 
 
 @asynccontextmanager
@@ -25,13 +26,18 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="License Server", lifespan=lifespan)
+app = FastAPI(title="License Server", version=VERSION, lifespan=lifespan)
 app.include_router(api_router)
 
 
 @app.get("/")
 async def index():
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/api/version")
+async def get_version():
+    return {"version": VERSION}
 
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
