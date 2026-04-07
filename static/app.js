@@ -176,10 +176,33 @@ function statusBadge(l) {
 function actionBtns(l) {
   const k = l.key;
   const revokeOrEnable = l.is_active
-    ? `<button class="btn btn-danger btn-sm" data-key="${k}" onclick="doRevoke(this.dataset.key)"><i data-lucide="ban" style="width:13px;height:13px"></i> 吊销</button>`
-    : `<button class="btn btn-success btn-sm" data-key="${k}" onclick="doActivate(this.dataset.key)"><i data-lucide="check-circle" style="width:13px;height:13px"></i> 启用</button>`;
-  const del = `<button class="btn btn-ghost btn-sm" data-key="${k}" onclick="doDelete(this.dataset.key)" style="color:var(--danger)"><i data-lucide="trash-2" style="width:13px;height:13px"></i></button>`;
-  return `<div style="display:flex;gap:4px">${revokeOrEnable}${del}</div>`;
+    ? `<button class="btn btn-danger btn-sm" data-key="${k}" onclick="doRevoke(this.dataset.key)" title="吊销"><i data-lucide="shield-off" style="width:14px;height:14px"></i></button>`
+    : `<button class="btn btn-success btn-sm" data-key="${k}" onclick="doActivate(this.dataset.key)" title="启用"><i data-lucide="shield-check" style="width:14px;height:14px"></i></button>`;
+  const edit = `<button class="btn btn-ghost btn-sm" data-key="${k}" data-note="${(l.note||'').replace(/"/g,'&quot;')}" data-max="${l.max_devices}" data-expires="${l.expires_at||''}" onclick="openEditModal(this)" title="编辑"><i data-lucide="pencil" style="width:14px;height:14px"></i></button>`;
+  const del = `<button class="btn btn-ghost btn-sm" data-key="${k}" onclick="doDelete(this.dataset.key)" title="删除" style="color:var(--danger)"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>`;
+  return `<div style="display:flex;gap:4px">${revokeOrEnable}${edit}${del}</div>`;
+}
+
+// ===== Edit License =====
+function openEditModal(el) {
+  const key = el.dataset.key;
+  const note = el.dataset.note;
+  const maxDevices = el.dataset.max;
+  $('editLicKey').value = key;
+  $('editLicNote').value = note;
+  $('editLicDevices').value = maxDevices;
+  openModal('editLicModal');
+}
+
+async function doEditLicense() {
+  const key = $('editLicKey').value;
+  const note = $('editLicNote').value.trim();
+  const max_devices = parseInt($('editLicDevices').value) || 1;
+  try {
+    const r = await api('POST', '/admin/update', { license_key: key, note, max_devices });
+    if (r.ok) { toast('已更新', 'success'); closeModal('editLicModal'); refreshAll(); loadLicenses(); }
+    else toast(r.detail || '更新失败', 'error');
+  } catch (e) {}
 }
 
 async function doRevoke(key) {

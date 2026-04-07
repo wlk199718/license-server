@@ -17,7 +17,7 @@ from db import init_db
 from api import router as api_router
 
 STATIC_DIR = Path(__file__).parent / "static"
-VERSION = "1.1.0"
+VERSION = "1.1.2"
 
 
 @asynccontextmanager

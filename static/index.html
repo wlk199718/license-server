@@ -260,7 +260,18 @@ tr:hover td{background:rgba(124,106,239,.03)}
   </div>
 </div>
 
-<script src="/static/app.js?v=1.1.0"></script>
+<!-- ===== Edit License Modal ===== -->
+<div class="modal-mask" id="editLicModal">
+  <div class="modal">
+    <h2><i data-lucide="pencil" style="width:20px;height:20px;color:var(--primary)"></i> 编辑卡密</h2>
+    <input type="hidden" id="editLicKey">
+    <div class="form-group"><label>备注</label><input class="input" type="text" id="editLicNote"></div>
+    <div class="form-group"><label>最大设备数</label><input class="input" type="number" id="editLicDevices" min="1"></div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('editLicModal')">取消</button><button class="btn btn-primary" onclick="doEditLicense()">保存</button></div>
+  </div>
+</div>
+
+<script src="/static/app.js?v=1.1.2"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>

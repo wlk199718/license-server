@@ -67,6 +67,12 @@ class DeleteLicenseRequest(BaseModel):
     license_key: str
 
 
+class UpdateLicenseRequest(BaseModel):
+    license_key: str
+    note: Optional[str] = None
+    max_devices: Optional[int] = None
+
+
 class UnbindDeviceRequest(BaseModel):
     license_key: str
     device_id: str
@@ -413,6 +419,23 @@ async def delete_license(req: DeleteLicenseRequest, db: AsyncSession = Depends(g
     await db.execute(delete(License).where(License.key == req.license_key))
     await db.commit()
     return {"ok": True, "message": "卡密已删除"}
+
+
+@router.post("/admin/update", dependencies=[Depends(verify_admin)])
+async def update_license(req: UpdateLicenseRequest, db: AsyncSession = Depends(get_db)):
+    """更新卡密信息"""
+    result = await db.execute(select(License).where(License.key == req.license_key))
+    lic = result.scalar_one_or_none()
+    if not lic:
+        raise HTTPException(status_code=404, detail="卡密不存在")
+
+    if req.note is not None:
+        lic.note = req.note
+    if req.max_devices is not None:
+        lic.max_devices = req.max_devices
+
+    await db.commit()
+    return {"ok": True, "message": "卡密已更新"}
 
 
 @router.post("/admin/unbind", dependencies=[Depends(verify_admin)])
