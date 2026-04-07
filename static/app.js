@@ -103,18 +103,19 @@ async function loadLicenses() {
 }
 
 function licRow(l, short) {
+  const k = l.key;
   const cols = short ? `
-    <td><code class="mono" style="cursor:pointer" title="点击复制" onclick="copyText('${l.key}')">${mask(l.key)}</code></td>
+    <td><code class="mono" style="cursor:pointer" title="点击复制完整卡密" data-key="${k}" onclick="copyText(this.dataset.key)">${mask(k)}</code></td>
     <td><span class="badge badge-project">${l.project_code}</span></td>
     <td>${statusBadge(l)}</td>
-    <td><span style="cursor:pointer;color:var(--primary)" onclick="showDevices('${l.key}')">${l.current_devices}/${l.max_devices}</span></td>
+    <td><span style="cursor:pointer;color:var(--primary)" data-key="${k}" onclick="showDevices(this.dataset.key)">${l.current_devices}/${l.max_devices}</span></td>
     <td style="font-size:12px">${fmtDate(l.expires_at)}</td>
     <td>${actionBtns(l)}</td>` : `
-    <td><code class="mono" style="cursor:pointer" title="点击复制" onclick="copyText('${l.key}')">${mask(l.key)}</code></td>
+    <td><code class="mono" style="cursor:pointer" title="点击复制完整卡密" data-key="${k}" onclick="copyText(this.dataset.key)">${mask(k)}</code></td>
     <td><span class="badge badge-project">${l.project_code}</span></td>
     <td style="color:var(--text3);font-size:12px">${l.note || '-'}</td>
     <td>${statusBadge(l)}</td>
-    <td><span style="cursor:pointer;color:var(--primary)" onclick="showDevices('${l.key}')">${l.current_devices}/${l.max_devices}</span></td>
+    <td><span style="cursor:pointer;color:var(--primary)" data-key="${k}" onclick="showDevices(this.dataset.key)">${l.current_devices}/${l.max_devices}</span></td>
     <td style="font-size:12px">${fmtDate(l.expires_at)}</td>
     <td class="hide-m" style="font-size:12px;color:var(--text3)">${fmtDate(l.created_at)}</td>
     <td>${actionBtns(l)}</td>`;
@@ -128,9 +129,10 @@ function statusBadge(l) {
 }
 
 function actionBtns(l) {
+  const k = l.key;
   return l.is_active
-    ? `<button class="btn btn-danger btn-sm" onclick="doRevoke('${l.key}')"><i data-lucide="ban" style="width:13px;height:13px"></i> 吊销</button>`
-    : `<button class="btn btn-success btn-sm" onclick="doActivate('${l.key}')"><i data-lucide="check-circle" style="width:13px;height:13px"></i> 启用</button>`;
+    ? `<button class="btn btn-danger btn-sm" data-key="${k}" onclick="doRevoke(this.dataset.key)"><i data-lucide="ban" style="width:13px;height:13px"></i> 吊销</button>`
+    : `<button class="btn btn-success btn-sm" data-key="${k}" onclick="doActivate(this.dataset.key)"><i data-lucide="check-circle" style="width:13px;height:13px"></i> 启用</button>`;
 }
 
 async function doRevoke(key) {
@@ -153,7 +155,11 @@ async function doCreateLicense() {
   try {
     const r = await api('POST', '/admin/licenses', { project_code, count, max_devices, expires_days, note });
     if (!r.ok) { toast(r.detail || '生成失败', 'error'); return; }
-    $('cLicResult').innerHTML = `<div style="color:var(--success);font-size:13px;margin-top:16px;font-weight:600">成功生成 ${r.licenses.length} 个卡密</div><div class="copy-box">${r.licenses.join('\n')}</div><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="copyText(this.previousElementSibling.textContent)">复制全部</button>`;
+    closeModal('createLicModal');
+    $('cLicResult').innerHTML = '';
+    toast(`成功生成 ${r.licenses.length} 个卡密`, 'success');
+    // 弹出复制窗口
+    showKeysModal(r.licenses);
     refreshAll();
   } catch (e) {}
 }
@@ -199,7 +205,7 @@ async function doCreateProject() {
   if (!code || !name) { toast('项目标识和名称为必填项', 'error'); return; }
   try {
     const r = await api('POST', '/admin/projects', { code, name, description });
-    if (r.ok) { toast('项目已创建', 'success'); closeModal('createProjModal'); $('cProjCode').value = ''; $('cProjName').value = ''; $('cProjDesc').value = ''; loadProjects(); updateProjectSelects(); } else toast(r.detail || '创建失败', 'error');
+    if (r.ok) { toast('项目已创建', 'success'); closeModal('createProjModal'); $('cProjCode').value = ''; $('cProjName').value = ''; $('cProjDesc').value = ''; await refreshAll(); loadProjects(); } else toast(r.detail || '创建失败', 'error');
   } catch (e) {}
 }
 
@@ -226,7 +232,7 @@ async function showDevices(key) {
           <div class="sub">${d.device_id}</div>
           <div class="sub">最后心跳: ${fmtDate(d.last_heartbeat)}</div>
         </div>
-        <button class="btn btn-danger btn-sm" onclick="doUnbind('${key}','${d.device_id}')"><i data-lucide="unlink" style="width:13px;height:13px"></i> 解绑</button>
+        <button class="btn btn-danger btn-sm" data-key="${key}" data-did="${d.device_id}" onclick="doUnbind(this.dataset.key,this.dataset.did)"><i data-lucide="unlink" style="width:13px;height:13px"></i> 解绑</button>
       </div>`).join('');
     refreshIcons();
   } catch (e) { $('deviceList').innerHTML = '<div class="empty" style="color:var(--danger)">网络错误</div>'; }
@@ -235,6 +241,16 @@ async function showDevices(key) {
 async function doUnbind(key, did) {
   if (!confirm('确定解绑此设备？')) return;
   try { const r = await api('POST', '/admin/unbind', { license_key: key, device_id: did }); if (r.ok) { toast('已解绑', 'success'); showDevices(key); refreshAll(); } } catch (e) {}
+}
+
+// ===== Keys Result Modal =====
+function showKeysModal(keys) {
+  const html = `<div class="copy-box" id="generatedKeys">${keys.join('\n')}</div>
+    <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="copyText(document.getElementById('generatedKeys').textContent)"><i data-lucide="copy" style="width:13px;height:13px"></i> 复制全部</button>`;
+  $('deviceList').innerHTML = html;
+  $('devModalKey').textContent = `共 ${keys.length} 个`;
+  openModal('deviceModal');
+  refreshIcons();
 }
 
 // ===== Helpers =====
