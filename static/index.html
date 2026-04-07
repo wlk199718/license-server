@@ -192,7 +192,7 @@ tr:hover td{background:rgba(124,106,239,.03)}
     <!-- Licenses Page -->
     <div class="page" id="page-licenses" style="display:none">
       <div class="page-header"><h2>卡密管理</h2><div class="actions">
-        <select class="filter-select" id="licProjectFilter" onchange="loadLicenses()"><option value="">全部项目</option></select>
+        <select class="filter-select" id="licProjectFilter" onchange="licPage=1;loadLicenses()"><option value="">全部项目</option></select>
         <button class="btn btn-primary btn-sm" onclick="openModal('createLicModal')"><i data-lucide="plus" style="width:14px;height:14px"></i> 生成卡密</button>
       </div></div>
       <div class="content">
@@ -200,6 +200,7 @@ tr:hover td{background:rgba(124,106,239,.03)}
           <div style="overflow-x:auto"><table><thead><tr>
             <th>卡密</th><th>项目</th><th>备注</th><th>状态</th><th>设备</th><th>到期时间</th><th class="hide-m">创建时间</th><th>操作</th>
           </tr></thead><tbody id="licTable"></tbody></table></div>
+          <div id="licPagination" style="padding:16px 24px;display:flex;align-items:center;gap:6px;justify-content:center;border-top:1px solid var(--border)"></div>
         </div>
       </div>
     </div>

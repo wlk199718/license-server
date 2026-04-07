@@ -63,6 +63,10 @@ class ActivateLicenseRequest(BaseModel):
     license_key: str
 
 
+class DeleteLicenseRequest(BaseModel):
+    license_key: str
+
+
 class UnbindDeviceRequest(BaseModel):
     license_key: str
     device_id: str
@@ -314,13 +318,24 @@ async def create_licenses(
 @router.get("/admin/licenses", dependencies=[Depends(verify_admin)])
 async def list_licenses(
     project: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
-    """查询卡密，可按项目筛选"""
-    query = select(License).order_by(License.created_at.desc())
+    """查询卡密，可按项目筛选，支持分页"""
+    base_query = select(License).order_by(License.created_at.desc())
+    count_query = select(func.count()).select_from(License)
     if project:
-        query = query.where(License.project_code == project)
+        base_query = base_query.where(License.project_code == project)
+        count_query = count_query.where(License.project_code == project)
 
+    # 总数
+    total_result = await db.execute(count_query)
+    total = total_result.scalar()
+
+    # 分页
+    offset = (page - 1) * page_size
+    query = base_query.offset(offset).limit(page_size)
     result = await db.execute(query)
     licenses = result.scalars().all()
 
@@ -343,7 +358,14 @@ async def list_licenses(
             }
         )
 
-    return {"ok": True, "licenses": items}
+    return {
+        "ok": True,
+        "licenses": items,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": (total + page_size - 1) // page_size,
+    }
 
 
 @router.post("/admin/revoke", dependencies=[Depends(verify_admin)])
@@ -375,6 +397,22 @@ async def activate_license(
     lic.is_active = True
     await db.commit()
     return {"ok": True, "message": "卡密已启用"}
+
+
+@router.post("/admin/delete", dependencies=[Depends(verify_admin)])
+async def delete_license(req: DeleteLicenseRequest, db: AsyncSession = Depends(get_db)):
+    """彻底删除卡密"""
+    result = await db.execute(select(License).where(License.key == req.license_key))
+    lic = result.scalar_one_or_none()
+    if not lic:
+        raise HTTPException(status_code=404, detail="卡密不存在")
+
+    await db.execute(
+        delete(DeviceBinding).where(DeviceBinding.license_key == req.license_key)
+    )
+    await db.execute(delete(License).where(License.key == req.license_key))
+    await db.commit()
+    return {"ok": True, "message": "卡密已删除"}
 
 
 @router.post("/admin/unbind", dependencies=[Depends(verify_admin)])

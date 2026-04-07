@@ -2,6 +2,9 @@ const API = location.origin;
 let adminKey = localStorage.getItem('adminKey') || '';
 let allProjects = [];
 let allLicenses = [];
+let licPage = 1;
+let licTotalPages = 1;
+let licTotal = 0;
 
 // ===== Init =====
 async function init() {
@@ -91,15 +94,46 @@ function renderDashTable() {
 // ===== Licenses =====
 async function loadLicenses() {
   const proj = $('licProjectFilter') ? $('licProjectFilter').value : '';
-  const url = proj ? '/admin/licenses?project=' + proj : '/admin/licenses';
+  let url = '/admin/licenses?page=' + licPage + '&page_size=20';
+  if (proj) url += '&project=' + proj;
   try {
     const r = await api('GET', url);
     if (!r.ok) return;
     allLicenses = r.licenses;
+    licTotal = r.total || 0;
+    licTotalPages = r.total_pages || 1;
     $('licTable').innerHTML = r.licenses.length ? r.licenses.map(l => licRow(l, false)).join('') : '<tr><td colspan="8" class="empty">暂无卡密</td></tr>';
+    renderPagination();
     updateNavCounts();
     refreshIcons();
   } catch (e) {}
+}
+
+function renderPagination() {
+  let el = $('licPagination');
+  if (!el) return;
+  if (licTotalPages <= 1) { el.innerHTML = `<span style="color:var(--text3);font-size:13px">共 ${licTotal} 条</span>`; return; }
+  let html = `<span style="color:var(--text3);font-size:13px;margin-right:12px">共 ${licTotal} 条</span>`;
+  html += `<button class="btn btn-ghost btn-sm" ${licPage <= 1 ? 'disabled style="opacity:.4;pointer-events:none"' : ''} onclick="licGoPage(${licPage - 1})">上一页</button>`;
+  // 页码
+  const maxShow = 5;
+  let start = Math.max(1, licPage - Math.floor(maxShow / 2));
+  let end = Math.min(licTotalPages, start + maxShow - 1);
+  if (end - start < maxShow - 1) start = Math.max(1, end - maxShow + 1);
+  if (start > 1) html += `<button class="btn btn-ghost btn-sm" onclick="licGoPage(1)">1</button>`;
+  if (start > 2) html += `<span style="color:var(--text3);padding:0 4px">...</span>`;
+  for (let i = start; i <= end; i++) {
+    html += `<button class="btn ${i === licPage ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="licGoPage(${i})">${i}</button>`;
+  }
+  if (end < licTotalPages - 1) html += `<span style="color:var(--text3);padding:0 4px">...</span>`;
+  if (end < licTotalPages) html += `<button class="btn btn-ghost btn-sm" onclick="licGoPage(${licTotalPages})">${licTotalPages}</button>`;
+  html += `<button class="btn btn-ghost btn-sm" ${licPage >= licTotalPages ? 'disabled style="opacity:.4;pointer-events:none"' : ''} onclick="licGoPage(${licPage + 1})">下一页</button>`;
+  el.innerHTML = html;
+}
+
+function licGoPage(p) {
+  licPage = p;
+  loadLicenses();
 }
 
 function licRow(l, short) {
@@ -130,9 +164,11 @@ function statusBadge(l) {
 
 function actionBtns(l) {
   const k = l.key;
-  return l.is_active
+  const revokeOrEnable = l.is_active
     ? `<button class="btn btn-danger btn-sm" data-key="${k}" onclick="doRevoke(this.dataset.key)"><i data-lucide="ban" style="width:13px;height:13px"></i> 吊销</button>`
     : `<button class="btn btn-success btn-sm" data-key="${k}" onclick="doActivate(this.dataset.key)"><i data-lucide="check-circle" style="width:13px;height:13px"></i> 启用</button>`;
+  const del = `<button class="btn btn-ghost btn-sm" data-key="${k}" onclick="doDelete(this.dataset.key)" style="color:var(--danger)"><i data-lucide="trash-2" style="width:13px;height:13px"></i></button>`;
+  return `<div style="display:flex;gap:4px">${revokeOrEnable}${del}</div>`;
 }
 
 async function doRevoke(key) {
@@ -142,6 +178,11 @@ async function doRevoke(key) {
 
 async function doActivate(key) {
   try { const r = await api('POST', '/admin/activate', { license_key: key }); if (r.ok) { toast('已启用', 'success'); refreshAll(); loadLicenses(); } else toast(r.detail || '操作失败', 'error'); } catch (e) {}
+}
+
+async function doDelete(key) {
+  if (!confirm('确定彻底删除此卡密？此操作不可恢复！')) return;
+  try { const r = await api('POST', '/admin/delete', { license_key: key }); if (r.ok) { toast('已删除', 'success'); refreshAll(); loadLicenses(); } else toast(r.detail || '删除失败', 'error'); } catch (e) {}
 }
 
 // ===== Create License =====
@@ -274,7 +315,7 @@ function toast(msg, type) {
   setTimeout(() => el.remove(), 2500);
 }
 function updateNavCounts() {
-  $('navLicCount').textContent = allLicenses.length;
+  $('navLicCount').textContent = licTotal || allLicenses.length;
   $('navProjCount').textContent = allProjects.length;
 }
 function updateProjectSelects() {
