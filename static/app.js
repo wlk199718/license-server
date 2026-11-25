@@ -54,25 +54,25 @@ const PAGE_META = {
   },
 };
 
-// ===== Theme & Drawer (video2api Style B Dark Permanent Default) =====
+// ===== Theme & Drawer (video2api Style A Light Default) =====
 function initTheme() {
   try {
-    const saved = localStorage.getItem('v2a_license_theme_v2') || 'dark';
+    const saved = localStorage.getItem('v2a_license_theme_v3') || 'light';
     applyTheme(saved);
   } catch (e) {
-    applyTheme('dark');
+    applyTheme('light');
   }
 }
 
 function applyTheme(theme) {
-  document.documentElement?.classList?.toggle('dark', theme !== 'light');
+  document.documentElement?.classList?.toggle('dark', theme === 'dark');
 }
 
 function toggleTheme() {
   const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
   applyTheme(next);
   try {
-    localStorage.setItem('v2a_license_theme_v2', next);
+    localStorage.setItem('v2a_license_theme_v3', next);
   } catch (e) {}
 }
 
