@@ -520,23 +520,24 @@ function licRow(l, short) {
   const k = String(l.key || '');
   const safeKey = escapeHtml(k);
   const fullKey = l.full_key || (l.is_legacy ? k : '');
-  const widthStyle = short ? 'min-width:190px;max-width:270px' : 'min-width:240px;max-width:360px';
+  const displayKey = fullKey || k;
+  const widthStyle = short ? 'width:220px;max-width:220px' : 'width:280px;max-width:280px';
   const keyCell = `<td style="${widthStyle}">
-    <div style="display:flex;align-items:center;gap:6px">
-      <code class="mono key-chip">${escapeHtml(fullKey || k)}</code>
+    <div style="display:flex;align-items:center;gap:6px;min-width:0">
+      <code class="mono key-chip" style="flex:1" title="${escapeHtml(displayKey)}">${escapeHtml(displayKey)}</code>
       ${
         fullKey
-          ? `<button class="copy-btn" data-key="${escapeHtml(fullKey)}" onclick="copyText(this.dataset.key)" title="复制完整卡密" aria-label="复制完整卡密"><i data-lucide="copy" style="width:13px;height:13px"></i></button>`
-          : `<span title="${escapeHtml(l.display_error || '旧卡密仅保存摘要，无法还原')}" style="font-size:11px;color:var(--muted-foreground);white-space:nowrap">仅编号</span>`
+          ? `<button class="copy-btn" style="flex-shrink:0" data-key="${escapeHtml(fullKey)}" onclick="copyText(this.dataset.key)" title="复制完整卡密" aria-label="复制完整卡密"><i data-lucide="copy" style="width:13px;height:13px"></i></button>`
+          : `<span title="${escapeHtml(l.display_error || '旧卡密仅保存摘要，无法还原')}" style="font-size:11px;color:var(--muted-foreground);white-space:nowrap;flex-shrink:0">仅编号</span>`
       }
     </div>
   </td>`;
-  const projCell = `<td><span class="badge badge-project" title="${escapeHtml(l.project_code)}">${escapeHtml(l.project_code)}</span></td>`;
-  const devBtn = `<td><button class="device-link" data-key="${safeKey}" onclick="showDevices(this.dataset.key)" aria-label="查看卡密 ${safeKey} 的绑定设备">${l.current_devices} / ${l.max_devices}</button></td>`;
+  const projCell = `<td style="white-space:nowrap"><span class="badge badge-project" title="${escapeHtml(l.project_code)}">${escapeHtml(l.project_code)}</span></td>`;
+  const devBtn = `<td style="white-space:nowrap"><button class="device-link" data-key="${safeKey}" onclick="showDevices(this.dataset.key)" aria-label="查看卡密 ${safeKey} 的绑定设备">${l.current_devices} / ${l.max_devices}</button></td>`;
 
   const cols = short
-    ? `${keyCell}${projCell}<td>${statusBadge(l)}</td>${devBtn}<td style="font-size:12px">${expiryText(l)}</td><td>${actionBtns(l)}</td>`
-    : `${keyCell}${projCell}<td style="color:var(--muted-foreground);font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(l.note || '')}">${escapeHtml(l.note || '—')}</td><td>${statusBadge(l)}</td>${devBtn}<td style="font-size:12px">${expiryText(l)}</td><td class="hide-m" style="font-size:12px;color:var(--muted-foreground)">${fmtDate(l.created_at)}</td><td>${actionBtns(l)}</td>`;
+    ? `${keyCell}${projCell}<td style="white-space:nowrap">${statusBadge(l)}</td>${devBtn}<td style="font-size:12px;white-space:nowrap">${expiryText(l)}</td><td style="white-space:nowrap">${actionBtns(l)}</td>`
+    : `${keyCell}${projCell}<td style="color:var(--muted-foreground);font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(l.note || '')}">${escapeHtml(l.note || '—')}</td><td style="white-space:nowrap">${statusBadge(l)}</td>${devBtn}<td style="font-size:12px;white-space:nowrap">${expiryText(l)}</td><td class="hide-m" style="font-size:12px;color:var(--muted-foreground);white-space:nowrap">${fmtDate(l.created_at)}</td><td style="white-space:nowrap">${actionBtns(l)}</td>`;
   return '<tr>' + cols + '</tr>';
 }
 

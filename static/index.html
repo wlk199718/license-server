@@ -1220,12 +1220,17 @@ tbody tr:hover td { background: var(--row-hover); }
 }
 .key-chip {
   display: inline-block;
+  max-width: 100%;
+  min-width: 0;
   background: var(--code-bg);
   border: 1px solid var(--border);
   padding: 2px 7px;
   border-radius: 5px;
   user-select: all;
-  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 .copy-btn {
   display: inline-flex;
@@ -1307,6 +1312,9 @@ html.dark .badge-pending { color: #38BDF8; }
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--foreground);
+  white-space: nowrap;
+  word-break: keep-all;
+  flex-shrink: 0;
 }
 .device-link:hover {
   border-color: var(--ring);
@@ -1978,7 +1986,7 @@ html.dark .badge-pending { color: #38BDF8; }
   </div>
 </div>
 
-<script src="/static/app.js?v=3.1.0-video2api-dark"></script>
+<script src="/static/app.js?v=3.2.0-video2api-nowrap"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>
