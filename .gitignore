@@ -4,3 +4,4 @@ __pycache__/
 data/
 *.db
 keys/*.pem
+.playwright-cli/

@@ -42,7 +42,7 @@ if [ -d "$INSTALL_DIR" ]; then
     echo -e "${YELLOW}检测到已有安装，请选择操作:${NC}"
     echo "  1) 更新 (拉取最新镜像并重启)"
     echo "  2) 卸载 (停止并删除容器和数据)"
-    echo "  3) 重新安装"
+    echo "  3) 重新部署（保留数据库、签名私钥及管理员密钥）"
     echo "  4) 查看状态"
     echo "  0) 退出"
     echo ""
@@ -70,11 +70,18 @@ if [ -d "$INSTALL_DIR" ]; then
             exit 0
             ;;
         3)
-            echo -e "${YELLOW}[重装] 停止旧容器...${NC}"
+            echo -e "${YELLOW}[重新部署] 保留已有配置和数据...${NC}"
             cd "$INSTALL_DIR"
-            $COMPOSE_CMD down
-            cd /
-            rm -rf "$INSTALL_DIR"
+            if [ ! -s .env ]; then
+                echo -e "${RED}[错误] 找不到已有 .env；请先恢复配置，避免覆盖管理员密钥。${NC}"
+                exit 1
+            fi
+            curl -fsSL "$COMPOSE_URL" -o docker-compose.yml.new
+            mv docker-compose.yml.new docker-compose.yml
+            $COMPOSE_CMD pull
+            $COMPOSE_CMD up -d
+            echo -e "${GREEN}[完成] 已重新部署，原 data 目录与 .env 未删除。${NC}"
+            exit 0
             ;;
         4)
             cd "$INSTALL_DIR"
@@ -106,15 +113,23 @@ echo ""
 read -p "请设置管理员密钥 (直接回车使用随机密钥): " admin_key
 
 if [ -z "$admin_key" ]; then
-    admin_key=$(openssl rand -hex 16)
+    admin_key=$(openssl rand -hex 32)
     echo -e "${YELLOW}已生成随机密钥: ${CYAN}${admin_key}${NC}"
 fi
 
 # 写入 .env
+session_secret=$(openssl rand -hex 32)
 cat > .env << EOF
 ADMIN_KEY=${admin_key}
-HEARTBEAT_TIMEOUT=120
+SESSION_SECRET=${session_secret}
+HEARTBEAT_INTERVAL=60
+ONLINE_TIMEOUT=180
+DEVICE_BINDING_TTL=900
+SESSION_TTL=2592000
+COOKIE_SECURE=true
+BIND_ADDRESS=127.0.0.1
 EOF
+chmod 600 .env
 
 echo ""
 echo -e "${GREEN}[4/4] 启动服务...${NC}"
@@ -126,21 +141,19 @@ echo -n "等待服务启动"
 for i in {1..10}; do
     sleep 1
     echo -n "."
-    if curl -s http://localhost:9000 > /dev/null 2>&1; then
+    if curl -fsS http://127.0.0.1:9000/healthz > /dev/null 2>&1; then
         break
     fi
 done
 echo ""
-
-# 获取服务器 IP
-SERVER_IP=$(curl -s4 ifconfig.me 2>/dev/null || curl -s4 ip.sb 2>/dev/null || echo "your-server-ip")
 
 echo ""
 echo -e "${CYAN}============================================${NC}"
 echo -e "${GREEN}   部署完成!${NC}"
 echo -e "${CYAN}============================================${NC}"
 echo ""
-echo -e "  管理面板:  ${CYAN}http://${SERVER_IP}:9000${NC}"
+echo -e "  内部监听:  ${CYAN}http://127.0.0.1:9000${NC}"
+echo -e "  管理面板:  请配置 HTTPS 反向代理后通过域名访问"
 echo -e "  管理密钥:  ${CYAN}${admin_key}${NC}"
 echo -e "  安装目录:  ${INSTALL_DIR}"
 echo -e "  数据目录:  ${INSTALL_DIR}/data"
@@ -151,5 +164,5 @@ echo -e "  重启服务:  cd ${INSTALL_DIR} && ${COMPOSE_CMD} restart"
 echo -e "  停止服务:  cd ${INSTALL_DIR} && ${COMPOSE_CMD} down"
 echo -e "  更新服务:  重新运行此脚本选择 '更新'"
 echo ""
-echo -e "${YELLOW}请妥善保管管理员密钥!${NC}"
+echo -e "${YELLOW}请妥善保管管理员密钥，并将旧版签名私钥迁入 data/license_private.pem!${NC}"
 echo -e "${CYAN}============================================${NC}"

@@ -1,277 +1,1984 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<title>卡密管理系统</title>
+<title>license2api · 卡密授权管理网关</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#0a0b10;--bg2:#101219;--card:#151822;--card2:#1a1e2e;
-  --border:#1f2437;--border2:#2a3050;
-  --primary:#7c6aef;--primary-dim:rgba(124,106,239,.12);--primary-hover:#8d7ef7;
-  --danger:#ef4444;--danger-dim:rgba(239,68,68,.12);
-  --success:#10b981;--success-dim:rgba(16,185,129,.12);
-  --warning:#f59e0b;--warning-dim:rgba(245,158,11,.12);
-  --info:#3b82f6;--info-dim:rgba(59,130,246,.12);
-  --text:#e8ecf4;--text2:#a0aec0;--text3:#64748b;
-  --radius:12px;--shadow:0 8px 32px rgba(0,0,0,.4);
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ============================================================================
+ * Light Theme = Style A (Linear / Shadcn Inset Floating Island — Crisp Cold White)
+ * Exact tokens from E:\work\video2api\frontend\src\index.css
+ * ============================================================================ */
+:root {
+  --radius: 10px;
+  --radius-sm: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --canvas: #F1F3F6;
+  --island: #FFFFFF;
+  --island-border: #E2E8F0;
+  --island-shadow: 0 4px 24px rgba(15, 23, 42, 0.035);
+
+  --background: #FFFFFF;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+
+  --primary: #0F172A;
+  --primary-foreground: #F8FAFC;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #1E293B;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #F1F5F9;
+  --accent-foreground: #0F172A;
+  --destructive: #EF4444;
+
+  --border: #E8EDF4;
+  --input: #CBD5E1;
+  --ring: #6366F1;
+
+  --sidebar: #F1F3F6;
+  --sidebar-foreground: #334155;
+  --sidebar-primary: #0F172A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFFFFF;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E2E8F0;
+
+  --quota-0: #64748B;
+  --quota-1: #3B82F6;
+  --quota-2: #10B981;
+  --quota-3: #F59E0B;
+  --quota-4: #8B5CF6;
+
+  --row-hover: rgba(15, 23, 42, 0.02);
+  --thead-bg: rgba(15, 23, 42, 0.018);
+  --code-bg: #F1F5F9;
 }
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
-/* ===== Login ===== */
-.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(124,106,239,.08),transparent 60%)}
-.login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 44px;width:100%;max-width:420px;box-shadow:var(--shadow);text-align:center}
-.login-card .logo{width:56px;height:56px;background:var(--primary-dim);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:24px}
-.login-card h1{font-size:22px;font-weight:700;margin-bottom:6px}
-.login-card p{color:var(--text3);font-size:14px;margin-bottom:32px}
-.input{width:100%;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:14px;outline:none;transition:border .2s}
-.input:focus{border-color:var(--primary)}
-.input::placeholder{color:var(--text3)}
+/* ============================================================================
+ * Dark Theme = Style B (Runway / Vercel AI — Obsidian Glass & Violet Glow)
+ * Exact tokens from E:\work\video2api\frontend\src\index.css
+ * ============================================================================ */
+html.dark {
+  --canvas: #07070A;
+  --island: rgba(15, 15, 20, 0.84);
+  --island-border: rgba(255, 255, 255, 0.08);
+  --island-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.55);
 
-/* ===== Buttons ===== */
-.btn{padding:10px 20px;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-hover);transform:translateY(-1px)}
-.btn-danger{background:var(--danger-dim);color:var(--danger);border:1px solid transparent}.btn-danger:hover{background:var(--danger);color:#fff}
-.btn-success{background:var(--success-dim);color:var(--success)}.btn-success:hover{background:var(--success);color:#fff}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--text2);color:var(--text)}
-.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
-.btn-block{width:100%;justify-content:center;padding:13px;margin-top:24px;font-size:14px}
+  --background: #0B0B10;
+  --foreground: #F4F4F5;
+  --card: rgba(255, 255, 255, 0.026);
+  --card-foreground: #F4F4F5;
+  --popover: #12121A;
+  --popover-foreground: #F4F4F5;
 
-/* ===== Layout: Top Navbar ===== */
-.app{display:none}
-.navbar{position:fixed;top:0;left:0;right:0;height:60px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;z-index:20}
-.navbar .left{display:flex;align-items:center;gap:32px}
-.navbar .brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700}
-.navbar .brand span{background:var(--primary-dim);color:var(--primary);width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.navbar .nav-links{display:flex;align-items:center;gap:4px}
-.nav-item{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;font-size:14px;color:var(--text2);cursor:pointer;transition:all .15s;position:relative}
-.nav-item:hover{background:var(--bg2);color:var(--text)}
-.nav-item.active{background:var(--primary-dim);color:var(--primary);font-weight:600}
-.nav-item .icon{width:16px;height:16px}
-.nav-item .count{background:var(--bg2);padding:1px 7px;border-radius:6px;font-size:11px;font-weight:600;color:var(--text3);margin-left:2px}
-.navbar .right{display:flex;align-items:center;gap:10px}
+  --primary: #8B5CF6;
+  --primary-foreground: #FFFFFF;
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #E4E4E7;
+  --muted: rgba(255, 255, 255, 0.05);
+  --muted-foreground: #A1A1AA;
+  --accent: rgba(139, 92, 246, 0.16);
+  --accent-foreground: #F4F4F5;
+  --destructive: #F87171;
 
-.main{margin-top:60px;min-height:calc(100vh - 60px)}
-.page-header{padding:20px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg)}
-.page-header h2{font-size:18px;font-weight:700}
-.page-header .actions{display:flex;gap:10px;align-items:center}
-.content{padding:24px 32px;max-width:1400px;margin:0 auto}
+  --border: rgba(255, 255, 255, 0.075);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #8B5CF6;
 
-/* ===== Stats ===== */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
-.stat .label{font-size:12px;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.stat .label .dot{width:8px;height:8px;border-radius:50%}
-.stat .val{font-size:26px;font-weight:800;letter-spacing:-.5px}
-.stat .val.c1{color:var(--primary)}.stat .val.c2{color:var(--success)}.stat .val.c3{color:var(--warning)}.stat .val.c4{color:var(--info)}
+  --sidebar: transparent;
+  --sidebar-foreground: #A1A1AA;
+  --sidebar-primary: #8B5CF6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(139, 92, 246, 0.16);
+  --sidebar-accent-foreground: #FAFAFA;
+  --sidebar-border: rgba(255, 255, 255, 0.07);
 
-/* ===== Table ===== */
-.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.panel-header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.panel-header h3{font-size:15px;font-weight:600}
-.filter-select{padding:7px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;cursor:pointer}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:11px 24px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;background:var(--bg2);border-bottom:1px solid var(--border)}
-td{padding:13px 24px;font-size:13px;border-bottom:1px solid var(--border)}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(124,106,239,.03)}
-.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+  --quota-0: #A1A1AA;
+  --quota-1: #38BDF8;
+  --quota-2: #34D399;
+  --quota-3: #FBBF24;
+  --quota-4: #A78BFA;
 
-/* ===== Copy Button ===== */
-.copy-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 6px;cursor:pointer;color:var(--text3);transition:all .15s;display:inline-flex;align-items:center;flex-shrink:0}
-.copy-btn:hover{color:var(--primary);border-color:var(--primary);background:var(--primary-dim)}
+  --row-hover: rgba(255, 255, 255, 0.026);
+  --thead-bg: rgba(255, 255, 255, 0.02);
+  --code-bg: rgba(255, 255, 255, 0.055);
+}
 
-/* ===== Badges ===== */
-.badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.3px}
-.badge-active{background:var(--success-dim);color:var(--success)}
-.badge-revoked{background:var(--danger-dim);color:var(--danger)}
-.badge-expired{background:var(--warning-dim);color:var(--warning)}
-.badge-online{background:var(--success-dim);color:var(--success)}
-.badge-offline{background:rgba(100,116,139,.15);color:var(--text3)}
-.badge-project{background:var(--info-dim);color:var(--info)}
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
 
-/* ===== Modal ===== */
-.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(4px)}
-.modal-mask.show{display:flex}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px;width:100%;max-width:500px;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:modalIn .2s ease}
-@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.modal h2{font-size:17px;font-weight:700;margin-bottom:24px;display:flex;align-items:center;gap:8px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:28px}
+* {
+  border-color: var(--border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar { width: 5px; height: 5px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { border-radius: 5px; background: var(--border); }
 
-/* ===== Misc ===== */
-.copy-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:16px;max-height:180px;overflow-y:auto;font-family:monospace;font-size:12px;line-height:2;word-break:break-all;user-select:all;color:var(--primary)}
-.empty{text-align:center;padding:48px 20px;color:var(--text3);font-size:14px}
-.toast{position:fixed;top:24px;right:24px;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:300;animation:toastIn .25s ease;box-shadow:0 8px 24px rgba(0,0,0,.3)}
-.toast-success{background:var(--success);color:#fff}
-.toast-error{background:var(--danger);color:#fff}
-@keyframes toastIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--canvas);
+  color: var(--foreground);
+  font-family: Inter, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 
-.device-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
-.device-item:last-child{border-bottom:none}
-.device-meta{flex:1}
-.device-meta .name{font-size:14px;font-weight:500}
-.device-meta .sub{font-size:12px;color:var(--text3);margin-top:3px;font-family:monospace}
+html.dark body {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(124, 58, 237, 0.16), transparent 42%),
+    radial-gradient(circle at 86% 10%, rgba(6, 182, 212, 0.11), transparent 38%),
+    #07070A;
+  background-attachment: fixed;
+}
 
-/* ===== Project Cards ===== */
-.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.project-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;transition:all .15s;cursor:default}
-.project-card:hover{border-color:var(--border2)}
-.project-card .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.project-card .head h4{font-size:15px;font-weight:700}
-.project-card .desc{font-size:13px;color:var(--text3);margin-bottom:16px;min-height:20px}
-.project-card .meta{display:flex;gap:16px;font-size:12px;color:var(--text2)}
-.project-card .meta b{color:var(--text);font-weight:700}
-.project-card .actions{display:flex;gap:6px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+button:not(:disabled), [role="button"], summary, label[for], select { cursor: pointer; }
 
-@media(max-width:768px){
-  .navbar{padding:0 16px}
-  .navbar .left{gap:16px}
-  .nav-item{padding:8px 10px;font-size:13px}
-  .content{padding:16px}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .hide-m{display:none}
-  .page-header{padding:16px}
+/* ============================================================================
+ * Core video2api Surfaces (.v2a-island, .v2a-surface, .v2a-logo)
+ * ============================================================================ */
+.v2a-island {
+  background: var(--island);
+  border: 1px solid var(--island-border);
+  box-shadow: var(--island-shadow);
+}
+html.dark .v2a-island {
+  backdrop-filter: blur(20px);
+}
+
+.v2a-surface {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAFBFC 100%);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  border-radius: var(--radius-sm);
+}
+html.dark .v2a-surface {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.018) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.v2a-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #18181B, #3F3F46);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
+  flex-shrink: 0;
+}
+html.dark .v2a-logo {
+  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  box-shadow: 0 0 18px rgba(139, 92, 246, 0.45);
+}
+
+.ver-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+html.dark .ver-badge {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================================================
+ * Login Page — 1:1 Replica of video2api/frontend/src/features/auth/login-page.tsx
+ * ============================================================================ */
+.login-page {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--canvas);
+}
+html.dark .login-page {
+  background: transparent;
+}
+
+.login-grid-bg {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+  background-size: 36px 36px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 42%, #000 35%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 42%, #000 35%, transparent 100%);
+}
+html.dark .login-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+}
+
+.login-ambient-glow {
+  pointer-events: none;
+  position: absolute;
+  top: -140px;
+  left: 50%;
+  height: 420px;
+  width: 780px;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: rgba(99, 102, 241, 0.07);
+  filter: blur(64px);
+}
+html.dark .login-ambient-glow {
+  background: rgba(139, 92, 246, 0.14);
+}
+
+.login-topbar {
+  position: relative;
+  z-index: 10;
+  margin: 0 auto;
+  display: flex;
+  height: 64px;
+  width: 100%;
+  max-width: 1080px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--foreground);
+}
+.login-brand-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.login-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.login-main {
+  position: relative;
+  z-index: 10;
+  margin: 0 auto;
+  display: flex;
+  width: 100%;
+  max-width: 1080px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 32px 64px;
+}
+.login-columns {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) 416px;
+  align-items: center;
+  gap: 64px;
+}
+
+/* Left Storytelling Column */
+.login-story {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.story-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: rgba(255, 255, 255, 0.85);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #4338CA;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+html.dark .story-badge {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.1);
+  color: #C4B5FD;
+}
+.story-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.75);
+}
+.story-title {
+  margin-top: 20px;
+  max-width: 512px;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--foreground);
+}
+.story-subtitle {
+  margin-top: 14px;
+  max-width: 460px;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--muted-foreground);
+}
+.story-pills {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.story-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 4px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: #475569;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+}
+html.dark .story-pill {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #D4D4D8;
+}
+
+.story-features {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 470px;
+}
+.story-feature-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.75);
+  background: rgba(255, 255, 255, 0.65);
+  padding: 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+  backdrop-filter: blur(4px);
+  transition: background-color .15s;
+}
+.story-feature-card:hover {
+  background: rgba(255, 255, 255, 0.92);
+}
+html.dark .story-feature-card {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.025);
+}
+html.dark .story-feature-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.story-feature-icon {
+  margin-top: 2px;
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: #F8FAFC;
+  color: #334155;
+}
+html.dark .story-feature-icon {
+  border-color: rgba(139, 92, 246, 0.25);
+  background: rgba(139, 92, 246, 0.15);
+  color: #C4B5FD;
+}
+.story-feature-card h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.story-feature-card p {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--muted-foreground);
+}
+
+/* Right Elevated Sign-in Card */
+.login-card-col {
+  width: 100%;
+  max-width: 416px;
+  justify-self: end;
+}
+.login-card {
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 12px 36px -8px rgba(15, 23, 42, 0.08), 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+}
+html.dark .login-card {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 24px 56px rgba(0, 0, 0, 0.6);
+}
+.login-card-head {
+  margin-bottom: 24px;
+}
+.login-card-mobile-badge {
+  display: none;
+  margin-bottom: 12px;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #4338CA;
+}
+html.dark .login-card-mobile-badge {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.15);
+  color: #C4B5FD;
+}
+.login-card-head h1 {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+.login-card-head p {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+.login-field {
+  margin-bottom: 16px;
+}
+.login-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--foreground);
+  opacity: 0.88;
+}
+.login-input-wrap {
+  position: relative;
+}
+.login-input-icon {
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  opacity: 0.8;
+}
+.login-input {
+  width: 100%;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: rgba(248, 250, 252, 0.7);
+  padding: 0 14px 0 40px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--foreground);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
+  outline: none;
+  transition: all .15s;
+}
+.login-input:hover {
+  border-color: #CBD5E1;
+}
+.login-input:focus {
+  border-color: var(--ring);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+html.dark .login-input {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+html.dark .login-input:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+html.dark .login-input:focus {
+  border-color: var(--ring);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.22);
+}
+.pwd-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  display: flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  transition: all .15s;
+}
+.pwd-toggle-btn:hover {
+  background: rgba(226, 232, 240, 0.6);
+  color: var(--foreground);
+}
+html.dark .pwd-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.login-submit-btn {
+  margin-top: 8px;
+  height: 40px;
+  width: 100%;
+  border-radius: 12px;
+  border: none;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 13.5px;
+  font-weight: 500;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.14);
+  transition: all .15s;
+}
+.login-submit-btn:hover {
+  transform: translateY(-0.5px);
+  opacity: 0.95;
+}
+html.dark .login-submit-btn {
+  background: linear-gradient(135deg, #8B5CF6, #6366F1);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.35);
+}
+.login-security-foot {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+}
+.site-footer {
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  height: 36px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 0 24px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  opacity: 0.85;
+}
+
+/* ============================================================================
+ * App Shell — 1:1 Replica of video2api/frontend/src/app/app-shell.tsx
+ * ============================================================================ */
+.app { display: none; min-height: 100vh; }
+.shell-layout {
+  min-height: 100vh;
+  display: flex;
+  padding: 8px;
+  gap: 8px;
+}
+
+/* Embedded Canvas Sidebar */
+.sidebar {
+  position: fixed;
+  top: 8px;
+  bottom: 8px;
+  left: 8px;
+  z-index: 30;
+  width: 236px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 14px 10px;
+}
+.sidebar-brand {
+  display: flex;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+.sidebar-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--foreground);
+  text-decoration: none;
+}
+.sidebar-brand-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.sidebar-ver {
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 2px 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+html.dark .sidebar-ver {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-nav {
+  margin-top: 20px;
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  padding-bottom: 8px;
+}
+.sidebar-section-title {
+  padding: 0 10px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  opacity: 0.75;
+}
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-item {
+  display: flex;
+  height: 34px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 400;
+  font-family: inherit;
+  color: var(--sidebar-foreground);
+  transition: all .15s;
+}
+.nav-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.nav-item .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  transition: color .15s;
+}
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--foreground);
+}
+html.dark .nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--foreground);
+}
+.nav-item.active {
+  background: #FFFFFF;
+  font-weight: 500;
+  color: var(--foreground);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+.nav-item.active .icon {
+  color: var(--foreground);
+}
+html.dark .nav-item.active {
+  border-color: rgba(139, 92, 246, 0.35);
+  background: rgba(139, 92, 246, 0.15);
+  color: #FFFFFF;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+html.dark .nav-item.active .icon {
+  color: #C4B5FD;
+}
+.nav-item .count {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  background: rgba(15, 23, 42, 0.05);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+html.dark .nav-item .count {
+  background: rgba(255, 255, 255, 0.07);
+  color: #D4D4D8;
+}
+
+.sidebar-account {
+  margin-top: 12px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--sidebar-border);
+  padding-top: 12px;
+}
+.account-row {
+  display: flex;
+  height: 36px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+}
+.account-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+.account-name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--foreground);
+  opacity: 0.85;
+}
+.icon-ghost-btn {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  transition: all .15s;
+}
+.icon-ghost-btn:hover {
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--foreground);
+}
+html.dark .icon-ghost-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--foreground);
+}
+
+/* Mobile Header & Drawer */
+.mobile-topbar {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0 16px;
+  backdrop-filter: blur(12px);
+}
+html.dark .mobile-topbar {
+  background: rgba(11, 11, 16, 0.9);
+}
+.drawer-mask {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+.drawer-mask.open { display: block; }
+
+/* Right Floating Island Content Panel */
+.content-col {
+  display: flex;
+  min-height: calc(100vh - 16px);
+  flex: 1;
+  flex-direction: column;
+  margin-left: 244px;
+  min-width: 0;
+}
+.island-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+
+/* Unified Common Header inside Island */
+.island-header {
+  display: flex;
+  min-height: 56px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 28px;
+}
+.island-header-left {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 10px;
+}
+.island-header-left h1 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--foreground);
+}
+.island-header-left span {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.island-header-actions {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.island-body {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1320px;
+  flex: 1;
+  padding: 20px 28px 32px;
+}
+
+/* ============================================================================
+ * Standard Buttons & Inputs (video2api shadcn size="sm" h-8 text-xs)
+ * ============================================================================ */
+.btn {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+.btn-primary:hover {
+  opacity: 0.92;
+}
+html.dark .btn-primary {
+  background: linear-gradient(135deg, #8B5CF6, #6366F1);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.35);
+}
+.btn-secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border-color: var(--border);
+}
+.btn-secondary:hover {
+  background: #E2E8F0;
+}
+html.dark .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--muted-foreground);
+  border-color: var(--border);
+}
+.btn-ghost:hover {
+  background: var(--secondary);
+  color: var(--foreground);
+}
+.btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #DC2626;
+  border-color: transparent;
+}
+.btn-danger:hover {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+html.dark .btn-danger {
+  color: #F87171;
+}
+.btn-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: transparent;
+}
+.btn-success:hover {
+  background: #10B981;
+  color: #FFFFFF;
+}
+html.dark .btn-success {
+  color: #34D399;
+}
+.btn-sm { height: 30px; padding: 0 10px; font-size: 12px; }
+.icon-action { width: 28px; height: 28px; padding: 0; }
+
+.input, .filter-select {
+  height: 32px;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--input);
+  background: var(--background);
+  padding: 0 10px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+html.dark .input, html.dark .filter-select {
+  background: rgba(255, 255, 255, 0.03);
+}
+.input:focus, .filter-select:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 18%, transparent);
+}
+.filter-select {
+  width: auto;
+  min-width: 132px;
+}
+
+/* ============================================================================
+ * Dashboard Page — 5 KPI Tiles + 40-Bar Pool Distribution + Panels
+ * ============================================================================ */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.metric-tile {
+  min-height: 112px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.metric-head {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.metric-head span {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.metric-head svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+.metric-val {
+  margin-top: 10px;
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+.metric-detail {
+  margin-top: 6px;
+  min-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+}
+
+.dash-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(340px, 2fr);
+  gap: 8px;
+  align-items: stretch;
+}
+.dash-panel {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+}
+.dash-panel-head {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.dash-panel-head h2 {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* 40-Stripe Pool Bar (from video2api DashboardPage) */
+.stripe-bar {
+  display: flex;
+  height: 44px;
+  align-items: stretch;
+  gap: 4px;
+}
+.stripe-seg {
+  flex: 1;
+  min-width: 0;
+  border-radius: 2px;
+  background: var(--muted);
+  transition: transform .15s, opacity .15s;
+}
+.stripe-seg:hover {
+  transform: translateY(-3px);
+  opacity: 0.82;
+}
+.stripe-active { background: #10B981; }
+.stripe-pending { background: var(--quota-1); }
+.stripe-expired { background: var(--quota-3); }
+.stripe-revoked { background: var(--destructive); }
+
+.pool-legend-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.pool-legend-row {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.pool-legend-row:last-child { border-bottom: none; padding-bottom: 0; }
+.pool-legend-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+ * DataTableShell — 1:1 Replica of video2api/frontend/src/shared/components/data-table-shell.tsx
+ * ============================================================================ */
+.data-table-shell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+}
+.dt-toolbar {
+  display: flex;
+  min-height: 36px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.dt-toolbar-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.search-field {
+  position: relative;
+  width: 240px;
+}
+.search-field svg {
+  pointer-events: none;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+}
+.search-field .input {
+  padding-left: 30px;
+}
+
+.table-scroll { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  height: 38px;
+  text-align: left;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: var(--thead-bg);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  height: 48px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--row-hover); }
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+}
+.key-chip {
+  display: inline-block;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  border-radius: 5px;
+  user-select: all;
+  word-break: break-all;
+}
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted-foreground);
+  transition: all .14s;
+}
+.copy-btn:hover {
+  background: var(--secondary);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+/* Status Badges — Exact video2api badge.tsx low-saturation style */
+.badge {
+  display: inline-flex;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0 7px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+.badge-active, .badge-online {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+html.dark .badge-active, html.dark .badge-online { color: #34D399; }
+
+.badge-revoked {
+  background: rgba(239, 68, 68, 0.12);
+  color: #DC2626;
+}
+html.dark .badge-revoked { color: #F87171; }
+
+.badge-expired {
+  background: rgba(245, 158, 11, 0.12);
+  color: #B45309;
+}
+html.dark .badge-expired { color: #FBBF24; }
+
+.badge-pending {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0369A1;
+}
+html.dark .badge-pending { color: #38BDF8; }
+
+.badge-offline, .badge-project {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+.badge-project {
+  border-radius: 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--foreground);
+}
+
+.device-link {
+  display: inline-flex;
+  height: 22px;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--secondary);
+  padding: 0 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+.device-link:hover {
+  border-color: var(--ring);
+}
+
+.dt-footer {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ============================================================================
+ * Projects Grid & Heartbeat Panels
+ * ============================================================================ */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+}
+.project-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+}
+.project-card .meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: var(--muted);
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+}
+.project-card .meta b {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+.project-card .actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.heartbeat-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+.heartbeat-summary-item {
+  padding: 12px 14px;
+  border-radius: 7px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+}
+.heartbeat-summary-item .count {
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #10B981;
+}
+.heartbeat-table { table-layout: fixed; min-width: 1040px; }
+.cell-nowrap { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cell-device { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; }
+
+/* ============================================================================
+ * Modals & Sonner Toast
+ * ============================================================================ */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+.modal-mask.show { display: flex; }
+.modal {
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 24px;
+}
+.modal h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+.copy-box {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 10px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.device-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.empty {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--muted-foreground);
+  font-size: 12.5px;
+}
+
+.toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 300;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: #0F172A;
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+.toast-error { background: #E11D48; color: #FFFFFF; }
+
+/* ============================================================================
+ * Responsive Breakpoints
+ * ============================================================================ */
+@media (max-width: 1180px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dash-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 1024px) {
+  .login-columns { grid-template-columns: 1fr; }
+  .login-story { display: none; }
+  .login-card-col { justify-self: center; }
+  .login-card-mobile-badge { display: inline-flex; }
+
+  .shell-layout { flex-direction: column; padding: 0; gap: 0; }
+  .mobile-topbar { display: flex; }
+  .sidebar {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 268px;
+    background: var(--background);
+    border-right: 1px solid var(--border);
+    transform: translateX(-100%);
+    transition: transform .2s ease;
+    z-index: 50;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .content-col { margin-left: 0; min-height: calc(100vh - 48px); }
+  .island-container { border-radius: 0; border-left: none; border-right: none; border-top: none; }
+  .island-header, .island-body { padding-left: 16px; padding-right: 16px; }
+  .hide-m { display: none; }
 }
 </style>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="/static/vendor/lucide.min.js"></script>
 </head>
 <body>
 
-<!-- ===== Login Page ===== -->
+<!-- ============================================================================
+     Login Page — 1:1 Replica of video2api LoginPage
+     ============================================================================ -->
 <div class="login-page" id="loginPage">
-  <div class="login-card">
-    <div class="logo"><i data-lucide="shield-check" style="width:28px;height:28px;color:var(--primary)"></i></div>
-    <h1>卡密管理系统</h1>
-    <p>请输入管理员密钥登录</p>
-    <input class="input" type="password" id="adminKeyInput" placeholder="管理员密钥" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn btn-primary btn-block" onclick="doLogin()">登 录</button>
-  </div>
+  <div class="login-grid-bg" aria-hidden="true"></div>
+  <div class="login-ambient-glow" aria-hidden="true"></div>
+
+  <!-- Top Navigation -->
+  <header class="login-topbar">
+    <div class="login-brand">
+      <span class="v2a-logo" style="width:28px;height:28px;border-radius:8px">L</span>
+      <span class="login-brand-name">license2api</span>
+      <span class="ver-badge" id="loginVersionBadge">v1.4.5</span>
+    </div>
+    <div class="login-top-actions">
+      <button type="button" class="icon-ghost-btn" onclick="toggleTheme()" aria-label="切换外观" title="切换浅色 / 深色主题" style="width:32px;height:32px">
+        <i data-lucide="sun-moon" style="width:16px;height:16px"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Two-Column Content -->
+  <main class="login-main">
+    <div class="login-columns">
+      <!-- Left Product Storytelling Column -->
+      <section class="login-story">
+        <div class="story-badge">
+          <span class="story-badge-dot"></span>
+          <span>RSA-2048 签名授权网关</span>
+        </div>
+
+        <h2 class="story-title">多项目卡密与设备统一网关</h2>
+
+        <p class="story-subtitle">
+          聚合多业务线授权命名空间，提供 RSA 非对称签名响应、客户端设备槽位绑定、实时心跳保活与防爆破自动熔断保护。
+        </p>
+
+        <div class="story-pills">
+          <span class="story-pill">RSA-SHA256 Sign</span>
+          <span class="story-pill">Device Slot TTL</span>
+          <span class="story-pill">Anti-Brute Lock</span>
+          <span class="story-pill">Fernet Key Vault</span>
+        </div>
+
+        <div class="story-features">
+          <div class="story-feature-card">
+            <div class="story-feature-icon"><i data-lucide="workflow" style="width:16px;height:16px"></i></div>
+            <div>
+              <h3>标准签名验证契约</h3>
+              <p>统一 /api/verify 与 /api/heartbeat 响应签名，客户端内置公钥离线验签防篡改。</p>
+            </div>
+          </div>
+          <div class="story-feature-card">
+            <div class="story-feature-icon"><i data-lucide="refresh-cw" style="width:16px;height:16px"></i></div>
+            <div>
+              <h3>设备槽位与主动保活</h3>
+              <p>智能感知客户端心跳周期与并发设备配额，支持首次激活计时与超时自动释放槽位。</p>
+            </div>
+          </div>
+          <div class="story-feature-card">
+            <div class="story-feature-icon"><i data-lucide="sparkles" style="width:16px;height:16px"></i></div>
+            <div>
+              <h3>按卡策略防爆破风控</h3>
+              <p>连续 10 次密钥错误精准锁定单张卡密而不误伤正常设备，全链路操作审计可追溯。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Elevated Sign-in Card -->
+      <section class="login-card-col">
+        <div class="v2a-island login-card">
+          <div class="login-card-head">
+            <div class="login-card-mobile-badge">
+              <span class="story-badge-dot"></span>
+              <span>RSA-2048 签名授权网关</span>
+            </div>
+            <h1>管理员登录</h1>
+            <p>使用网关管理凭据进入控制台</p>
+          </div>
+
+          <form onsubmit="event.preventDefault();doLogin()" noValidate>
+            <div class="login-field">
+              <label for="loginUsernameInput">管理员账号</label>
+              <div class="login-input-wrap">
+                <i data-lucide="user" class="login-input-icon"></i>
+                <input
+                  id="loginUsernameInput"
+                  name="username"
+                  type="text"
+                  value="admin"
+                  placeholder="输入管理员账号"
+                  class="login-input"
+                  autocomplete="username"
+                >
+              </div>
+            </div>
+
+            <div class="login-field">
+              <label for="adminKeyInput">管理密码</label>
+              <div class="login-input-wrap">
+                <i data-lucide="lock" class="login-input-icon"></i>
+                <input
+                  id="adminKeyInput"
+                  type="password"
+                  placeholder="输入管理密码"
+                  class="login-input"
+                  style="padding-right:40px"
+                  aria-label="管理员密码"
+                  autocomplete="current-password"
+                  autofocus
+                >
+                <button
+                  type="button"
+                  class="pwd-toggle-btn"
+                  onclick="togglePasswordVisibility()"
+                  aria-label="显示或隐藏密码"
+                  tabindex="-1"
+                >
+                  <i data-lucide="eye" id="pwdEyeIcon" style="width:16px;height:16px"></i>
+                </button>
+              </div>
+            </div>
+
+            <button class="login-submit-btn" type="submit" id="loginSubmitBtn">
+              <span>登录控制台</span>
+              <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
+            </button>
+          </form>
+
+          <div class="login-security-foot">
+            <i data-lucide="shield-check" style="width:14px;height:14px;color:#059669"></i>
+            <span>受控管理端 · 仅限授权管理员访问</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <span style="font-weight:500">license2api</span>
+    <span>© 2026</span>
+    <span>·</span>
+    <span>RSA Signed License &amp; Device Gateway</span>
+  </footer>
 </div>
 
-<!-- ===== App ===== -->
+<!-- ============================================================================
+     Authenticated App Shell — 1:1 Replica of video2api AppShell
+     ============================================================================ -->
 <div class="app" id="appPage">
-  <!-- Top Navbar -->
-  <div class="navbar">
-    <div class="left">
-      <div class="brand"><span><i data-lucide="key-round" style="width:16px;height:16px"></i></span> 卡密管理</div>
-      <div class="nav-links">
-        <div class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
-          <i data-lucide="layout-dashboard" class="icon"></i> 仪表盘
+  <!-- Mobile Header -->
+  <header class="mobile-topbar">
+    <button type="button" class="icon-ghost-btn" onclick="toggleDrawer(true)" aria-label="打开导航">
+      <i data-lucide="menu" style="width:16px;height:16px"></i>
+    </button>
+    <span style="font-size:14px;font-weight:600" id="mobilePageTitle">仪表盘</span>
+    <button type="button" class="icon-ghost-btn" onclick="toggleTheme()" aria-label="切换外观">
+      <i data-lucide="sun-moon" style="width:15px;height:15px"></i>
+    </button>
+  </header>
+  <div class="drawer-mask" id="drawerMask" onclick="toggleDrawer(false)"></div>
+
+  <div class="shell-layout">
+    <!-- Embedded Canvas Sidebar -->
+    <aside class="sidebar" id="appSidebar" aria-label="导航">
+      <div class="sidebar-brand">
+        <a href="javascript:void(0)" onclick="switchPage('dashboard')" class="sidebar-brand-link">
+          <span class="v2a-logo">L</span>
+          <span class="sidebar-brand-title">license2api</span>
+          <span class="sidebar-ver" id="appVersion">v1.4.5</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="主菜单">
+        <div class="sidebar-section-title">控制台</div>
+        <div class="nav-links">
+          <button type="button" class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
+            <span class="nav-item-left"><i data-lucide="layout-dashboard" class="icon"></i><span>仪表盘</span></span>
+          </button>
+          <button type="button" class="nav-item" data-page="licenses" onclick="switchPage('licenses')">
+            <span class="nav-item-left"><i data-lucide="key-round" class="icon"></i><span>卡密管理</span></span>
+            <span class="count" id="navLicCount">0</span>
+          </button>
+          <button type="button" class="nav-item" data-page="projects" onclick="switchPage('projects')">
+            <span class="nav-item-left"><i data-lucide="box" class="icon"></i><span>项目配置</span></span>
+            <span class="count" id="navProjCount">0</span>
+          </button>
+          <button type="button" class="nav-item" data-page="heartbeats" onclick="switchPage('heartbeats')">
+            <span class="nav-item-left"><i data-lucide="shield-check" class="icon"></i><span>心跳与风控</span></span>
+            <span class="count" id="navOnlineCount">0</span>
+          </button>
+          <button type="button" class="nav-item" data-page="audit" onclick="switchPage('audit')">
+            <span class="nav-item-left"><i data-lucide="eye" class="icon"></i><span>调用审计</span></span>
+          </button>
         </div>
-        <div class="nav-item" data-page="licenses" onclick="switchPage('licenses')">
-          <i data-lucide="key-round" class="icon"></i> 卡密 <span class="count" id="navLicCount">0</span>
-        </div>
-        <div class="nav-item" data-page="projects" onclick="switchPage('projects')">
-          <i data-lucide="folder-open" class="icon"></i> 项目 <span class="count" id="navProjCount">0</span>
+      </nav>
+
+      <div class="sidebar-account">
+        <div class="account-row">
+          <span class="account-dot"></span>
+          <span class="account-name">Admin</span>
+          <button type="button" class="icon-ghost-btn" onclick="refreshAll()" title="刷新数据" aria-label="刷新数据">
+            <i data-lucide="refresh-cw" style="width:14px;height:14px"></i>
+          </button>
+          <button type="button" class="icon-ghost-btn" id="themeToggleBtn" onclick="toggleTheme()" title="切换浅色 / 深色主题" aria-label="切换外观">
+            <i data-lucide="sun-moon" style="width:15px;height:15px"></i>
+          </button>
+          <button type="button" class="icon-ghost-btn" onclick="doLogout()" title="退出登录" aria-label="退出登录">
+            <i data-lucide="log-out" style="width:14px;height:14px"></i>
+          </button>
         </div>
       </div>
-    </div>
-    <div class="right">
-      <span style="font-size:11px;color:var(--text3);margin-right:4px" id="appVersion"></span>
-      <button class="btn btn-ghost btn-sm" onclick="refreshAll()"><i data-lucide="refresh-cw" style="width:14px;height:14px"></i> 刷新</button>
-      <button class="btn btn-ghost btn-sm" onclick="doLogout()"><i data-lucide="log-out" style="width:14px;height:14px"></i> 退出</button>
-    </div>
-  </div>
+    </aside>
 
-  <!-- Main -->
-  <div class="main">
-    <!-- Dashboard Page -->
-    <div class="page" id="page-dashboard">
-      <div class="page-header"><h2>仪表盘</h2></div>
-      <div class="content">
-        <div class="stats" id="statsGrid"></div>
-        <div class="panel">
-          <div class="panel-header"><h3>最近卡密</h3></div>
-          <div style="overflow-x:auto"><table><thead><tr>
-            <th>卡密</th><th>项目</th><th>状态</th><th>设备</th><th>到期时间</th><th>操作</th>
-          </tr></thead><tbody id="dashTable"></tbody></table></div>
-        </div>
-      </div>
-    </div>
+    <!-- Right Content Floating Island -->
+    <div class="content-col">
+      <div class="v2a-island island-container">
+        <!-- Unified Common Header: Page Title & Subtitle on left + Contextual Actions Slot on right -->
+        <header class="island-header">
+          <div class="island-header-left">
+            <h1 id="islandTitle">仪表盘</h1>
+            <span id="islandSubtitle">授权池状态分布、项目配额与最近签发记录</span>
+          </div>
+          <div class="island-header-actions" id="islandActions"></div>
+        </header>
 
-    <!-- Licenses Page -->
-    <div class="page" id="page-licenses" style="display:none">
-      <div class="page-header"><h2>卡密管理</h2><div class="actions">
-        <select class="filter-select" id="licProjectFilter" onchange="licPage=1;loadLicenses()"><option value="">全部项目</option></select>
-        <button class="btn btn-primary btn-sm" onclick="openModal('createLicModal')"><i data-lucide="plus" style="width:14px;height:14px"></i> 生成卡密</button>
-      </div></div>
-      <div class="content">
-        <div class="panel">
-          <div style="overflow-x:auto"><table><thead><tr>
-            <th>卡密</th><th>项目</th><th>备注</th><th>状态</th><th>设备</th><th>到期时间</th><th class="hide-m">创建时间</th><th>操作</th>
-          </tr></thead><tbody id="licTable"></tbody></table></div>
-          <div id="licPagination" style="padding:16px 24px;display:flex;align-items:center;gap:6px;justify-content:center;border-top:1px solid var(--border)"></div>
-        </div>
-      </div>
-    </div>
+        <main class="island-body">
+          <!-- ===== Dashboard Page ===== -->
+          <div class="page" id="page-dashboard">
+            <!-- Top 5 KPI Tiles -->
+            <div class="stats" id="statsGrid"></div>
 
-    <!-- Projects Page -->
-    <div class="page" id="page-projects" style="display:none">
-      <div class="page-header"><h2>项目管理</h2><div class="actions">
-        <button class="btn btn-primary btn-sm" onclick="openModal('createProjModal')"><i data-lucide="plus" style="width:14px;height:14px"></i> 新建项目</button>
-      </div></div>
-      <div class="content">
-        <div class="project-grid" id="projectGrid"></div>
+            <!-- Row 1: Recent Licenses Table (3fr) + 40-Stripe License Pool Distribution (2fr) -->
+            <div class="dash-row">
+              <section class="v2a-surface dash-panel">
+                <header class="dash-panel-head">
+                  <h2>最近签发卡密</h2>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="switchPage('licenses')">
+                    查看全部
+                  </button>
+                </header>
+                <div class="table-scroll">
+                  <table style="min-width:680px">
+                    <thead>
+                      <tr>
+                        <th>卡密</th><th>项目</th><th>状态</th><th>设备</th><th>到期时间</th><th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashTable"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="v2a-surface dash-panel">
+                <header class="dash-panel-head">
+                  <h2>授权池状态分布</h2>
+                  <span style="display:flex;align-items:center;gap:6px">
+                    <strong id="dashAvailabilityPct" style="font-size:15px;font-variant-numeric:tabular-nums">0%</strong>
+                    <span style="font-size:11px;color:var(--muted-foreground)">健康可用率</span>
+                  </span>
+                </header>
+                <div id="dashStripeBar" class="stripe-bar" aria-label="授权池状态条"></div>
+                <div id="dashPoolLegend" class="pool-legend-list"></div>
+              </section>
+            </div>
+          </div>
+
+          <!-- ===== Licenses Page ===== -->
+          <div class="page" id="page-licenses" style="display:none">
+            <section class="data-table-shell">
+              <div class="dt-toolbar" role="search">
+                <div class="dt-toolbar-left">
+                  <div class="search-field">
+                    <i data-lucide="search"></i>
+                    <input class="input" type="search" id="licSearchInput" maxlength="128" placeholder="搜索卡密编号或备注…" onkeydown="if(event.key==='Enter')applyLicenseFilters()">
+                  </div>
+                  <select class="filter-select" id="licProjectFilter" onchange="applyLicenseFilters()">
+                    <option value="">全部项目</option>
+                  </select>
+                  <select class="filter-select" id="licStatusFilter" onchange="applyLicenseFilters()">
+                    <option value="">全部状态</option>
+                    <option value="active">有效</option>
+                    <option value="expired">已过期</option>
+                    <option value="revoked">已吊销</option>
+                  </select>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <button class="btn btn-secondary btn-sm" onclick="applyLicenseFilters()">查询</button>
+                  <button class="btn btn-ghost btn-sm" onclick="resetLicenseFilters()">重置</button>
+                </div>
+              </div>
+
+              <div class="v2a-surface" style="overflow:hidden">
+                <div class="table-scroll">
+                  <table style="min-width:860px">
+                    <thead>
+                      <tr>
+                        <th>卡密</th><th>项目</th><th>备注</th><th>状态</th><th>设备槽位</th><th>到期时间</th><th class="hide-m">创建时间</th><th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="licTable" aria-live="polite"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div id="licPagination" class="dt-footer"></div>
+            </section>
+          </div>
+
+          <!-- ===== Projects Page ===== -->
+          <div class="page" id="page-projects" style="display:none">
+            <div class="project-grid" id="projectGrid"></div>
+          </div>
+
+          <!-- ===== Audit Page ===== -->
+          <div class="page" id="page-audit" style="display:none">
+            <section class="data-table-shell">
+              <div class="v2a-surface" style="overflow:hidden">
+                <div class="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>时间</th><th>操作动作</th><th>目标标识</th><th>来源 IP</th>
+                      </tr>
+                    </thead>
+                    <tbody id="auditTable" aria-live="polite"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div id="auditPagination" class="dt-footer"></div>
+            </section>
+          </div>
+
+          <!-- ===== Heartbeats Page ===== -->
+          <div class="page" id="page-heartbeats" style="display:none">
+            <section class="data-table-shell">
+              <div class="v2a-surface dash-panel">
+                <header class="dash-panel-head" style="margin-bottom:10px">
+                  <h2>项目 / 备注在线设备</h2>
+                  <span id="heartbeatSummaryMeta" style="font-size:11.5px;color:var(--muted-foreground)"></span>
+                </header>
+                <div id="heartbeatSummary" class="heartbeat-summary"></div>
+              </div>
+
+              <details class="v2a-surface" id="blacklistPanel" style="overflow:hidden">
+                <summary style="padding:13px 18px;display:flex;align-items:center;justify-content:space-between;list-style:none;font-size:13px;font-weight:600">
+                  <span style="display:flex;align-items:center;gap:8px">
+                    <span>已锁定卡密（连续密钥错误 10 次触发熔断）</span>
+                    <span class="badge badge-revoked" id="blacklistCountBadge" style="display:none">0</span>
+                  </span>
+                  <span style="font-size:11.5px;font-weight:400;color:var(--muted-foreground)">展开 / 收起</span>
+                </summary>
+                <div class="table-scroll" style="border-top:1px solid var(--border)">
+                  <table>
+                    <thead>
+                      <tr><th>卡密标识</th><th>项目</th><th>备注</th><th>连续错误</th><th>锁定时间</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="blacklistTable"></tbody>
+                  </table>
+                </div>
+              </details>
+
+              <div class="dt-toolbar">
+                <div class="dt-toolbar-left">
+                  <div class="search-field">
+                    <i data-lucide="cpu"></i>
+                    <input class="input" type="search" id="heartbeatDeviceInput" placeholder="按设备 ID 过滤…" onkeydown="if(event.key==='Enter')applyHeartbeatFilters()">
+                  </div>
+                  <div class="search-field" style="width:190px">
+                    <i data-lucide="globe"></i>
+                    <input class="input" type="search" id="heartbeatIpInput" placeholder="客户端 IP…" onkeydown="if(event.key==='Enter')applyHeartbeatFilters()">
+                  </div>
+                  <select class="filter-select" id="heartbeatEventFilter" onchange="applyHeartbeatFilters()">
+                    <option value="">全部事件</option>
+                    <option value="verify">首次验证</option>
+                    <option value="heartbeat">周期心跳</option>
+                  </select>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <button class="btn btn-secondary btn-sm" onclick="applyHeartbeatFilters()">查询</button>
+                  <button class="btn btn-ghost btn-sm" onclick="resetHeartbeatFilters()">重置</button>
+                </div>
+              </div>
+
+              <div class="v2a-surface" style="overflow:hidden">
+                <div class="table-scroll">
+                  <table class="heartbeat-table"><thead><tr><th>项目</th><th>卡密</th><th>事件</th><th>状态</th><th>客户端 IP</th><th>设备信息</th><th>时间</th><th>备注</th></tr></thead><tbody id="heartbeatTable"></tbody></table>
+                </div>
+              </div>
+
+              <div id="heartbeatPagination" class="dt-footer"></div>
+            </section>
+          </div>
+        </main>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== Create License Modal ===== -->
-<div class="modal-mask" id="createLicModal">
-  <div class="modal">
-    <h2><i data-lucide="key-round" style="width:20px;height:20px;color:var(--primary)"></i> 生成卡密</h2>
-    <div class="form-group"><label>所属项目</label><select class="input" id="cLicProject"></select></div>
+<!-- ===== Modals ===== -->
+<div class="modal-mask" id="createLicModal" aria-hidden="true" onclick="if(event.target===this)closeModal('createLicModal')">
+  <div class="modal v2a-island" role="dialog" aria-modal="true" tabindex="-1">
+    <h2>生成卡密</h2>
+    <div class="form-group"><label for="cLicProject">所属项目</label><select class="input" id="cLicProject"></select></div>
     <div class="form-row">
-      <div class="form-group"><label>生成数量</label><input class="input" type="number" id="cLicCount" value="1" min="1" max="100"></div>
-      <div class="form-group"><label>最大设备数</label><input class="input" type="number" id="cLicDevices" value="1" min="1"></div>
+      <div class="form-group"><label for="cLicCount">生成数量</label><input class="input" type="number" id="cLicCount" value="1" min="1" max="100"></div>
+      <div class="form-group"><label for="cLicDevices">最大设备数</label><input class="input" type="number" id="cLicDevices" value="1" min="1"></div>
     </div>
-    <div class="form-group"><label>有效期（天），留空为永久</label><input class="input" type="number" id="cLicDays" placeholder="例如: 30"></div>
-    <div class="form-group"><label>备注</label><input class="input" type="text" id="cLicNote" placeholder="可选"></div>
+    <div class="form-group"><label for="cLicDays">有效期（天），留空为永久</label><input class="input" type="number" id="cLicDays" placeholder="例如: 30"></div>
+    <div class="form-group"><label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cLicStartOnActivation"> 从首次激活开始计时</label></div>
+    <div class="form-group"><label for="cLicNote">备注</label><input class="input" type="text" id="cLicNote" placeholder="可选"></div>
     <div id="cLicResult"></div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('createLicModal')">取消</button><button class="btn btn-primary" onclick="doCreateLicense()">生成</button></div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-secondary" onclick="closeModal('createLicModal')">取消</button>
+      <button type="button" class="btn btn-primary" id="createLicSubmit" onclick="doCreateLicense()">立即生成</button>
+    </div>
   </div>
 </div>
 
-<!-- ===== Create Project Modal ===== -->
-<div class="modal-mask" id="createProjModal">
-  <div class="modal">
-    <h2><i data-lucide="folder-plus" style="width:20px;height:20px;color:var(--primary)"></i> 新建项目</h2>
-    <div class="form-group"><label>项目标识（唯一英文标识）</label><input class="input" type="text" id="cProjCode" placeholder="例如: vidu2api"></div>
-    <div class="form-group"><label>项目名称</label><input class="input" type="text" id="cProjName" placeholder="例如: Vidu2API"></div>
-    <div class="form-group"><label>项目描述</label><input class="input" type="text" id="cProjDesc" placeholder="可选"></div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('createProjModal')">取消</button><button class="btn btn-primary" onclick="doCreateProject()">创建</button></div>
+<div class="modal-mask" id="createProjModal" aria-hidden="true" onclick="if(event.target===this)closeModal('createProjModal')">
+  <div class="modal v2a-island" role="dialog" aria-modal="true" tabindex="-1">
+    <h2>新建项目</h2>
+    <div class="form-group"><label for="cProjCode">项目标识</label><input class="input" type="text" id="cProjCode" placeholder="例如: video2api"></div>
+    <div class="form-group"><label for="cProjName">项目名称</label><input class="input" type="text" id="cProjName" placeholder="例如: Video2API"></div>
+    <div class="form-group"><label for="cProjTeam">所属团队</label><input class="input" type="text" id="cProjTeam" placeholder="可选"></div>
+    <div class="form-group"><label for="cProjDesc">项目描述</label><input class="input" type="text" id="cProjDesc" placeholder="可选"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal('createProjModal')">取消</button>
+      <button class="btn btn-primary" onclick="doCreateProject()">创建</button>
+    </div>
   </div>
 </div>
 
-<!-- ===== Device Modal ===== -->
-<div class="modal-mask" id="deviceModal">
-  <div class="modal" style="max-width:560px">
-    <h2><i data-lucide="monitor-smartphone" style="width:20px;height:20px;color:var(--primary)"></i> 绑定设备 <span id="devModalKey" class="mono" style="color:var(--primary);font-size:13px"></span></h2>
+<div class="modal-mask" id="editProjModal" aria-hidden="true" onclick="if(event.target===this)closeModal('editProjModal')">
+  <div class="modal v2a-island" role="dialog" aria-modal="true" tabindex="-1">
+    <h2>编辑项目</h2>
+    <input type="hidden" id="editProjCode">
+    <div class="form-group"><label>项目标识</label><input class="input" type="text" id="editProjCodeDisplay" disabled></div>
+    <div class="form-group"><label>项目名称</label><input class="input" type="text" id="editProjName"></div>
+    <div class="form-group"><label>所属团队</label><input class="input" type="text" id="editProjTeam"></div>
+    <div class="form-group"><label>项目描述</label><input class="input" type="text" id="editProjDesc"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal('editProjModal')">取消</button>
+      <button class="btn btn-primary" onclick="doEditProject()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-mask" id="deviceModal" aria-hidden="true" onclick="if(event.target===this)closeModal('deviceModal')">
+  <div class="modal v2a-island" role="dialog" aria-modal="true" tabindex="-1" style="max-width:520px">
+    <h2><span id="devModalTitle">绑定设备</span> <span id="devModalKey" class="mono" style="color:var(--muted-foreground)"></span></h2>
     <div id="deviceList" style="max-height:360px;overflow-y:auto"></div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('deviceModal')">关闭</button></div>
+    <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('deviceModal')">关闭</button></div>
   </div>
 </div>
 
-<!-- ===== Edit License Modal ===== -->
-<div class="modal-mask" id="editLicModal">
-  <div class="modal">
-    <h2><i data-lucide="pencil" style="width:20px;height:20px;color:var(--primary)"></i> 编辑卡密</h2>
+<div class="modal-mask" id="editLicModal" aria-hidden="true" onclick="if(event.target===this)closeModal('editLicModal')">
+  <div class="modal v2a-island" role="dialog" aria-modal="true" tabindex="-1">
+    <h2>编辑卡密</h2>
     <input type="hidden" id="editLicKey">
     <div class="form-group"><label>备注</label><input class="input" type="text" id="editLicNote"></div>
     <div class="form-group"><label>最大设备数</label><input class="input" type="number" id="editLicDevices" min="1"></div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('editLicModal')">取消</button><button class="btn btn-primary" onclick="doEditLicense()">保存</button></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal('editLicModal')">取消</button>
+      <button class="btn btn-primary" onclick="doEditLicense()">保存</button>
+    </div>
   </div>
 </div>
 
-<script src="/static/app.js?v=1.1.2"></script>
+<script src="/static/app.js?v=3.1.0-video2api-dark"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>
